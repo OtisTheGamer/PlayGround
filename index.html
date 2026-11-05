@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#170b26" />
+  <meta name="description" content="AdPlay — five ridiculous playable ads, five real mini-games. Beat the ad." />
+  <title>AdPlay — The Ad Is The Game</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ffd23f'/%3E%3Cpath d='M24 18l24 14-24 14z' fill='%23170b26'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <span class="ambient-blob blob-a"></span>
+    <span class="ambient-blob blob-b"></span>
+    <span class="ambient-blob blob-c"></span>
+    <span class="ambient-word word-left">100% REAL GAMEPLAY*</span>
+    <span class="ambient-word word-right">*NOT ACTUALLY REAL</span>
+  </div>
+
+  <div id="app">
+    <!-- HOME -->
+    <section id="screen-home" class="screen home" aria-label="AdPlay home">
+      <header class="home-header">
+        <div class="brand" aria-label="AdPlay">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" role="img"><path d="M11 7.5 26 16 11 24.5z" fill="currentColor"/></svg>
+          </span>
+          <span class="brand-word">ad<span>play</span></span>
+          <span class="brand-dot" aria-hidden="true"></span>
+        </div>
+        <div class="header-actions">
+          <button id="help-btn" class="icon-btn" type="button" aria-label="How AdPlay works">?</button>
+          <button id="sound-btn" class="icon-btn sound-btn" type="button" aria-label="Toggle sound" aria-pressed="true">
+            <span class="sound-on" aria-hidden="true">🔊</span>
+            <span class="sound-off" aria-hidden="true">🔇</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="home-main">
+        <section class="hero">
+          <div class="season-pill"><span class="live-dot"></span> SEASON 01 · 7 PLAYABLE ADS</div>
+          <h1>THE AD<br>IS THE <em>GAME<span class="period">.</span></em></h1>
+          <p class="hero-copy">Seven ridiculous ads. Seven real mini-games.<br>From survivor hordes to bullet hell. Beat them all.</p>
+          <button id="continue-btn" class="big-play" type="button">
+            <span class="big-play-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 5.5 19 12 8 18.5z" fill="currentColor"/></svg>
+            </span>
+            <span class="big-play-text">
+              <small>CONTINUE</small>
+              <strong id="continue-label">LEVEL 01</strong>
+            </span>
+            <span class="big-play-arrow" aria-hidden="true">→</span>
+          </button>
+          <div class="hero-stats">
+            <span class="star-total"><span aria-hidden="true">★</span> <b id="total-stars">0</b><span class="muted">/21</span></span>
+            <span class="hero-divider" aria-hidden="true"></span>
+            <span class="muted" id="skip-stat">ADS SKIPPED: 0</span>
+            <span class="ad-free-tag">AD-FREE: NEVER</span>
+          </div>
+        </section>
+
+        <section class="levels-section" aria-labelledby="levels-title">
+          <div class="section-head">
+            <h2 id="levels-title">THE AD BREAK</h2>
+            <span class="section-note">TAP TO PLAY</span>
+          </div>
+          <div id="level-list" class="level-list"></div>
+        </section>
+
+        <p class="home-fineprint">Every level is a real, playable ad. No purchases. No wait timers. One small lie.</p>
+      </main>
+
+      <footer class="home-footer">
+        <div class="ticker" aria-hidden="true">
+          <div class="ticker-track">
+            <span>★★★★★ “I INSTALLED IT AND NOW I'M A FARMER”</span>
+            <span>·</span>
+            <span>99% OF PLAYERS PICK THE WRONG GATE</span>
+            <span>·</span>
+            <span>YOUR DOG IS WAITING</span>
+            <span>·</span>
+            <span>NO WIFI NEEDED</span>
+            <span>·</span>
+            <span>★★★★★ “I INSTALLED IT AND NOW I'M A FARMER”</span>
+            <span>·</span>
+            <span>99% OF PLAYERS PICK THE WRONG GATE</span>
+            <span>·</span>
+            <span>YOUR DOG IS WAITING</span>
+            <span>·</span>
+            <span>NO WIFI NEEDED</span>
+            <span>·</span>
+          </div>
+        </div>
+      </footer>
+    </section>
+
+    <!-- GAME -->
+    <section id="screen-game" class="screen game" hidden aria-label="Playable ad">
+      <div class="adbar">
+        <span class="ad-badge"><span class="ad-pulse"></span>AD</span>
+        <div class="ad-sponsor">
+          <span class="ad-sponsor-label">SPONSORED BY</span>
+          <strong id="game-sponsor">MegaGates Labs</strong>
+        </div>
+        <button id="skip-btn" class="skip-btn" type="button" disabled aria-label="Skip ad">
+          <span id="skip-label">SKIP 3</span>
+        </button>
+      </div>
+
+      <div class="game-titlebar">
+        <button id="back-btn" class="round-btn" type="button" aria-label="Leave the ad and go home">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 7.5 12l7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="game-heading">
+          <h2 id="game-title">Squad Rush</h2>
+          <p id="game-claim">99% pick the wrong gate</p>
+        </div>
+        <button id="restart-btn" class="round-btn" type="button" aria-label="Restart this level">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 8.5A8 8 0 1 0 20 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M19.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div id="stage" class="stage">
+        <div id="level-host" class="level-host"></div>
+        <div id="hint-chip" class="hint-chip" role="status"></div>
+      </div>
+
+      <div class="ad-banner">
+        <div class="ad-banner-copy">
+          <span class="ad-banner-star" aria-hidden="true">★★★★★</span>
+          <span id="ad-banner-text">INSTALL FREE · NO WIFI NEEDED</span>
+        </div>
+        <button id="fake-cta" class="fake-cta" type="button">INSTALL</button>
+      </div>
+
+      <div id="result-layer" class="result-layer" hidden></div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

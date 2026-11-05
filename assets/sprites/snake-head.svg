@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="snake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#79ffbf"/><stop offset="1" stop-color="#18c97d"/></linearGradient>
+  </defs>
+  <path d="M18 62c-8-14-8-28 2-40M58 28c-18 1-31 14-32 33 0 4 1 8 2 11" fill="none" stroke="#18c97d" stroke-width="10" stroke-linecap="round" opacity=".35"/>
+  <path d="M98 60c0-25-19-42-44-42S10 35 10 60c0 26 19 44 44 44 10 0 19-3 26-8l18 7-4-17c3-7 4-16 4-26z" fill="url(#snake)" stroke="#20142e" stroke-width="6"/>
+  <circle cx="43" cy="49" r="12" fill="#fff" stroke="#20142e" stroke-width="3"/>
+  <circle cx="43" cy="51" r="6.5" fill="#20142e"/>
+  <circle cx="45" cy="48" r="2.3" fill="#fff"/>
+  <circle cx="76" cy="47" r="10" fill="#fff" stroke="#20142e" stroke-width="3"/>
+  <circle cx="76" cy="49" r="5.5" fill="#20142e"/>
+  <circle cx="78" cy="46" r="2" fill="#fff"/>
+  <path d="M54 75c4 3 9 3 13 0" fill="none" stroke="#20142e" stroke-width="4" stroke-linecap="round"/>
+  <path d="M52 86c-2 10 4 17 12 18-1-8 5-13 13-12" fill="none" stroke="#20142e" stroke-width="4" stroke-linecap="round"/>
+  <path d="M63 92l-5 6M66 93l-4 6M69 93l-3 6" stroke="#ff5d6c" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="28" cy="77" r="6" fill="#ff8fa3" opacity=".55"/>
+</svg>
