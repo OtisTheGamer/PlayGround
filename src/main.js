@@ -7,6 +7,8 @@ import { mount as mountSort } from "./levels/sort.js";
 import { mount as mountRescue } from "./levels/rescue.js";
 import { mount as mountSurvivor } from "./levels/survivor.js";
 import { mount as mountBullet } from "./levels/bullet.js";
+import { mount as mountRush } from "./levels/rush.js";
+import { mount as mountCell } from "./levels/cell.js";
 
 const LEVELS = [
   {
@@ -58,6 +60,20 @@ const LEVELS = [
     hint: "Drag to draw honey shields. They melt. Keep the bees off the dog.",
     scoreLabel: "BEES BLOCKED", mount: mountRescue,
   },
+  {
+    id: "rush", n: 8, title: "Snake Rush", studio: "SlitherSoft",
+    claim: "Only 1% can eat 15 apples", icon: "🐍",
+    c1: "#c6ff4a", c2: "#18b27c",
+    hint: "Swipe or tap a side to steer. Eat 15 apples. Avoid walls and your tail.",
+    scoreLabel: "APPLES", mount: mountRush,
+  },
+  {
+    id: "cell", n: 9, title: "Cell Survivor", studio: "PetriSoft",
+    claim: "Only 1% survive the swarm", icon: "🦠",
+    c1: "#62b6ff", c2: "#9b5cff",
+    hint: "Drag to move. Your cell auto-fires. Grow your tail — it blocks bullets. Survive 30s.",
+    scoreLabel: "KILLS", mount: mountCell,
+  },
 ];
 
 const SAVE_KEY = "adplay.save.v1";
@@ -95,6 +111,7 @@ const gameTitle = $("#game-title");
 const gameClaim = $("#game-claim");
 const gameSponsor = $("#game-sponsor");
 const totalStarsEl = $("#total-stars");
+const totalStarsMaxEl = $("#total-stars-max");
 const skipStatEl = $("#skip-stat");
 const continueBtn = $("#continue-btn");
 const continueLabel = $("#continue-label");
@@ -109,6 +126,9 @@ let toastTimeout = null;
 let bannerInterval = null;
 let bannerIndex = 0;
 let spritesReady = false;
+let falseAdLayer = null;
+let falseAdInterval = null;
+let falseAdTimeout = null;
 
 const BANNER_COPY = [
   "INSTALL FREE · NO WIFI NEEDED",
@@ -117,6 +137,7 @@ const BANNER_COPY = [
   "0% REAL · 100% GAME",
   "LIMITED TIME: STILL FREE",
   "THE DOG IS STILL WAITING",
+  "THE CELL DIVIDES AGAIN · SURVIVE 30s",
 ];
 
 function persist() {
@@ -151,6 +172,8 @@ function bestText(level) {
   const best = save.best[level.id];
   if (best == null) return "NEW";
   if (level.id === "knife") return `BEST ${best}/3`;
+  if (level.id === "rush") return `BEST ${best}/15`;
+  if (level.id === "cell") return `BEST ${best} KILLS`;
   if (level.id === "sort") return `BEST ${best} MOVES`;
   return `BEST ${best}`;
 }
@@ -183,6 +206,7 @@ function renderHome() {
   }
 
   totalStarsEl.textContent = String(totalStars());
+  if (totalStarsMaxEl) totalStarsMaxEl.textContent = `/${LEVELS.length * 3}`;
   skipStatEl.textContent = `ADS SKIPPED: ${save.skipped || 0}`;
 
   if (allCleared()) {
@@ -259,7 +283,91 @@ function startSkipTimer() {
   }, 1000);
 }
 
+function clearFalseAd() {
+  if (falseAdInterval) clearInterval(falseAdInterval);
+  if (falseAdTimeout) clearTimeout(falseAdTimeout);
+  falseAdInterval = null;
+  falseAdTimeout = null;
+  if (falseAdLayer) {
+    falseAdLayer.remove();
+    falseAdLayer = null;
+  }
+}
+
+function showFalseAd(level, token, onDone) {
+  clearFalseAd();
+  let closed = false;
+  const art = level.id === "cell" ? ["🦠", "🧬", "⚡"] : ["🍏", "🐍", "💎"];
+  const layer = document.createElement("div");
+  layer.className = "false-ad";
+  layer.setAttribute("role", "dialog");
+  layer.setAttribute("aria-modal", "true");
+  layer.setAttribute("aria-labelledby", "false-ad-title");
+  layer.innerHTML = `
+    <div class="false-ad-rays" aria-hidden="true"></div>
+    <div class="false-ad-card">
+      <span class="false-ad-flag">AD · 100% FAKE</span>
+      <h2 id="false-ad-title">YOU LOST!<br><em>BUT WAIT…</em></h2>
+      <p>Install <b>${level.title} 2</b> to unlock the ability to lose again. This ad is fake. The button is also fake. The disappointment is real.</p>
+      <div class="false-ad-art" aria-hidden="true"><span>${art[0]}</span><span>${art[1]}</span><span>${art[2]}</span></div>
+      <button class="false-ad-cta" type="button">CLAIM MY FREE PRIZE</button>
+      <button class="false-ad-close" type="button" disabled>CLOSE IN 2</button>
+      <span class="false-ad-fineprint">*NOT A REAL AD. PLEASE DO NOT INSTALL ANYTHING.</span>
+    </div>
+  `;
+  gameScreen.appendChild(layer);
+  falseAdLayer = layer;
+
+  const closeBtn = layer.querySelector(".false-ad-close");
+  const ctaBtn = layer.querySelector(".false-ad-cta");
+  let remaining = 2;
+
+  falseAdInterval = setInterval(() => {
+    if (token !== sessionToken) {
+      clearFalseAd();
+      return;
+    }
+    remaining--;
+    if (remaining > 0) {
+      closeBtn.textContent = `CLOSE IN ${remaining}`;
+    } else {
+      clearInterval(falseAdInterval);
+      falseAdInterval = null;
+      closeBtn.disabled = false;
+      closeBtn.classList.add("ready");
+      closeBtn.textContent = "CLOSE AD ✕ (IT'S REAL)";
+    }
+  }, 700);
+
+  const finish = () => {
+    if (closed) return;
+    if (token !== sessionToken) {
+      clearFalseAd();
+      return;
+    }
+    closed = true;
+    clearFalseAd();
+    onDone();
+  };
+
+  // A real ad would never close itself. This one is honest about being fake.
+  falseAdTimeout = setTimeout(finish, 5000);
+
+  ctaBtn.addEventListener("click", () => {
+    audio.tap();
+    ctaBtn.textContent = "PRIZE CLAIMED: NOTHING ✓";
+    ctaBtn.disabled = true;
+    showToast("Prize claimed. Prize was a lie. Advertised as such.", 2200);
+  });
+  closeBtn.addEventListener("click", () => {
+    if (closeBtn.disabled) return;
+    audio.click();
+    finish();
+  });
+}
+
 function destroyCurrent() {
+  clearFalseAd();
   if (current?.instance?.destroy) {
     try { current.instance.destroy(); } catch (error) { console.error(error); }
   }
@@ -332,11 +440,13 @@ async function startLevel(id) {
       showHint("Ad complete. Suspiciously fun, right?", 1400);
       showResult({ level, token, win: true, stars: starCount, score: numericScore, opts });
     },
-    lose(reason) {
+    lose(reason, options = {}) {
       if (token !== sessionToken || !current || current.resultShown) return;
       current.resultShown = true;
       stopSkipTimer("AD ENDED");
-      showResult({ level, token, win: false, stars: 0, score: null, opts: { note: reason } });
+      const reveal = () => showResult({ level, token, win: false, stars: 0, score: null, opts: { note: reason } });
+      if (options.fakeAd === false) reveal();
+      else showFalseAd(level, token, reveal);
     },
     toast(message, ms) {
       if (token === sessionToken) showToast(message, ms);
@@ -368,6 +478,8 @@ function formatScore(level, score) {
   switch (level.id) {
     case "knife": return `${score} / 3`;
     case "sort": return `${score} MOVES`;
+    case "rush": return `${score} APPLES`;
+    case "cell": return `${score} KILLS`;
     case "squad": return `${score} SQUAD`;
     case "survivor": return `${score} KILLS`;
     case "bullet": return `${score} GRAZES`;
@@ -382,6 +494,8 @@ function formatBest(level, value) {
   switch (level.id) {
     case "knife": return `BEST ${value} / 3 APPLES`;
     case "sort": return `BEST ${value} MOVES`;
+    case "rush": return `BEST ${value} APPLES`;
+    case "cell": return `BEST ${value} KILLS`;
     case "squad": return `BEST SQUAD ${value}`;
     case "survivor": return `BEST ${value} KILLS`;
     case "bullet": return `BEST ${value} GRAZES`;
@@ -475,9 +589,9 @@ function openHelp() {
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="help-title">
       <div class="sheet-grip" aria-hidden="true"></div>
       <h3 id="help-title">How AdPlay works</h3>
-      <p>Seven playable ads, recreated as real mini-games. No install. No purchases. One suspiciously honest skip button.</p>
+      <p>Nine playable ads, recreated as real mini-games. No install. No purchases. One suspiciously honest skip button.</p>
       <ul>
-        <li><span class="sheet-num">1</span><span><b>Every level is the ad.</b> Runner hordes, survivor swarms, bullet hell, knife timing, snake growth, potion sorting and one very good dog.</span></li>
+        <li><span class="sheet-num">1</span><span><b>Every level is the ad.</b> Runner hordes, survivor swarms, bullet hell, knife timing, snake growth, potion sorting, one very good dog, one classic Snake Rush and one cell that refuses to stop dividing.</span></li>
         <li><span class="sheet-num">2</span><span><b>Beat the objective</b> to earn up to three stars. Your best scores stay on this device.</span></li>
         <li><span class="sheet-num">3</span><span><b>Skip if you must.</b> The countdown is real. The judgement is also real.</span></li>
         <li><span class="sheet-num">4</span><span><b>All sprites are original recreations</b> of the ad-iverse, drawn for this game. No actual ads were harmed.</span></li>

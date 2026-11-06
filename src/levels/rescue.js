@@ -491,38 +491,45 @@ export function mount(root, api) {
   }
 
   function drawHud(ctx, w, h) {
-    const pad = 12;
+    const compact = w < 380;
+    const pad = compact ? 9 : 12;
     const top = 10;
+    const pillH = 32;
+    const heartsW = compact ? 78 : 104;
+    const heartSize = compact ? 15 : 18;
+    const heartGap = compact ? 21 : 26;
+
     // hearts
     ctx.save();
     ctx.fillStyle = "rgba(20, 10, 30, 0.42)";
-    roundRect(ctx, pad, top, 104, 32, 10);
+    roundRect(ctx, pad, top, heartsW, pillH, 10);
     ctx.fill();
     for (let i = 0; i < 3; i++) {
-      drawHeart(ctx, pad + 19 + i * 26, top + 16, 18, i < state.hearts);
+      drawHeart(ctx, pad + (compact ? 14 : 19) + i * heartGap, top + 16, heartSize, i < state.hearts);
     }
     ctx.restore();
 
     // timer
     ctx.save();
     const timeLeft = Math.max(0, DURATION - state.time);
+    const timerW = compact ? 54 : 62;
     ctx.fillStyle = "rgba(20, 10, 30, 0.42)";
-    roundRect(ctx, w - pad - 62, top, 62, 32, 10);
+    roundRect(ctx, w - pad - timerW, top, timerW, pillH, 10);
     ctx.fill();
     ctx.fillStyle = timeLeft < 5 ? "#ffd23f" : "#fff";
-    ctx.font = `900 15px ${DISPLAY}`;
+    ctx.font = `900 ${compact ? 13 : 15}px ${DISPLAY}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(`${timeLeft.toFixed(1)}s`, w - pad - 31, top + 17);
+    ctx.fillText(`${timeLeft.toFixed(1)}s`, w - pad - timerW / 2, top + 17);
     ctx.restore();
 
     // ink bar
-    const barW = clamp(w * 0.32, 100, 140);
+    const barW = compact ? Math.min(80, w * 0.26) : clamp(w * 0.32, 100, 140);
     const barX = w / 2 - barW / 2;
     const barY = top + 12;
     ctx.save();
     ctx.fillStyle = "rgba(20, 10, 30, 0.42)";
-    roundRect(ctx, barX - 8, top, barW + 16, 32, 10);
+    roundRect(ctx, barX - (compact ? 7 : 8), top, barW + (compact ? 14 : 16), pillH, 10);
     ctx.fill();
     ctx.fillStyle = "rgba(255,255,255,0.14)";
     roundRect(ctx, barX, barY, barW, 8, 4);
@@ -535,10 +542,11 @@ export function mount(root, api) {
     roundRect(ctx, barX, barY, Math.max(2, barW * pct), 8, 4);
     ctx.fill();
     ctx.fillStyle = "rgba(255,255,255,0.55)";
-    ctx.font = `900 6.5px ${DISPLAY}`;
+    ctx.font = `900 ${compact ? 6 : 6.5}px ${DISPLAY}`;
     ctx.textAlign = "center";
     ctx.fillText("HONEY INK", w / 2, top + 27);
     ctx.restore();
+    void h;
   }
 
   function draw() {
