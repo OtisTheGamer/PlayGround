@@ -1026,14 +1026,6 @@ export function mount(root, api) {
     draw();
   });
 
-  // TEMP DEBUG HOOK — removed after browser verification.
-  window.__cellTest = {
-    state,
-    finish() { state.phase = "play"; state.intro = 0; state.survive = DURATION - 0.1; },
-    hurt() { state.inv = 0; damagePlayer(); },
-    spawnEnemy,
-  };
-
   return {
     destroy() {
       if (resultTimer) clearTimeout(resultTimer);
