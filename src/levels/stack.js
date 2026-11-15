@@ -58,6 +58,49 @@ export function mount(root, api) {
   }
   makeActive();
 
+  let previousWidth = initialLayout.w;
+  let previousHeight = initialLayout.h;
+  let previousBaseW = initialLayout.baseW;
+  const offResize = stage.onResize(() => {
+    const next = layout();
+    const widthScale = next.w / previousWidth;
+    const heightScale = next.h / previousHeight;
+    const blockScale = next.baseW / previousBaseW;
+    const scaleX = (x) => next.w / 2 + (x - previousWidth / 2) * widthScale;
+    const scaleY = (y) => y * heightScale;
+
+    for (const block of state.blocks) {
+      block.x = scaleX(block.x);
+      block.w *= blockScale;
+    }
+    if (state.active) {
+      state.active.x = scaleX(state.active.x);
+      state.active.w *= blockScale;
+      state.active.x = clamp(state.active.x, 10 + state.active.w / 2, next.w - 10 - state.active.w / 2);
+    }
+    for (const particle of state.particles) {
+      particle.x = scaleX(particle.x);
+      particle.y = scaleY(particle.y);
+      particle.vx *= widthScale;
+      particle.vy *= heightScale;
+    }
+    for (const scrap of state.scraps) {
+      scrap.x = scaleX(scrap.x);
+      scrap.y = scaleY(scrap.y);
+      scrap.w *= blockScale;
+      scrap.vx *= widthScale;
+      scrap.vy *= heightScale;
+    }
+    for (const text of state.floats) {
+      text.x = scaleX(text.x);
+      text.y = scaleY(text.y);
+    }
+    state.dropFromY = scaleY(state.dropFromY);
+    previousWidth = next.w;
+    previousHeight = next.h;
+    previousBaseW = next.baseW;
+  });
+
   function burst(x, y, color, amount = 14, power = 180) {
     for (let i = 0; i < amount; i++) {
       const a = rand(0, TAU);
@@ -414,6 +457,7 @@ export function mount(root, api) {
       loop.stop();
       input.destroy();
       stopPointer();
+      offResize();
       stage.destroy();
     },
   };
