@@ -16,3 +16,15 @@
 - 👤 [Explore the creator's projects](https://go.ondev.store/OtisTheGamer).
 - 🌍 [Create with OMGithub](https://go.ondev.store/).
 <!-- omgithub:readme:end -->
+
+## VOIDRUN — Last Light
+
+A complete, single-file arcade survival game. Open `index.html` in a browser, or run a local server with:
+
+```sh
+python3 -m http.server 3002
+```
+
+Then visit [http://localhost:3002](http://localhost:3002).
+
+**Controls:** WASD / arrow keys to move, mouse to aim, click or Space to fire, Shift to dash, and P / Esc to pause. On touchscreens, use the left side to move and the right side to aim and fire. Collect glowing shards to score and restore hull.
