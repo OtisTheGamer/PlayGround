@@ -9,6 +9,12 @@ import { mount as mountSurvivor } from "./levels/survivor.js";
 import { mount as mountBullet } from "./levels/bullet.js";
 import { mount as mountRush } from "./levels/rush.js";
 import { mount as mountCell } from "./levels/cell.js";
+import { mount as mountParking } from "./levels/parking.js";
+import { mount as mountStack } from "./levels/stack.js";
+import { mount as mountPins } from "./levels/pins.js";
+import { mount as mountXhunt } from "./levels/xhunt.js";
+import { mount as mountIq } from "./levels/iq.js";
+import { mount as mountAdventure } from "./levels/adventure.js";
 
 const LEVELS = [
   {
@@ -73,6 +79,48 @@ const LEVELS = [
     c1: "#62b6ff", c2: "#9b5cff",
     hint: "Drag to move. Your cell auto-fires. Grow your tail — it blocks bullets. Survive 30s.",
     scoreLabel: "KILLS", mount: mountCell,
+  },
+  {
+    id: "parking", n: 10, title: "Parking Panic", studio: "LaneChange Games",
+    claim: "One wrong lane ends the ride", icon: "🚗",
+    c1: "#48d7ff", c2: "#4779ff",
+    hint: "Switch lanes with ← → or swipe. Dodge traffic, collect coins, survive 25s.",
+    scoreLabel: "COINS", mount: mountParking,
+  },
+  {
+    id: "stack", n: 11, title: "Stack Attack", studio: "Skyline Arcade",
+    claim: "How tall can you build?", icon: "🏗️",
+    c1: "#35e7ff", c2: "#7b78ff",
+    hint: "Tap, click, or press Space to drop each block. Stack 12 to reach the sky.",
+    scoreLabel: "PERFECT DROPS", mount: mountStack,
+  },
+  {
+    id: "pins", n: 12, title: "Pin Pull Payday", studio: "GoldVault Games",
+    claim: "Pull the right pin. Save the gold.", icon: "📌",
+    c1: "#ffd23f", c2: "#ff596b",
+    hint: "Tap the GOLD pins in order. Keep the red pins locked and guide gold to the chest.",
+    scoreLabel: "GOLD RESCUED", mount: mountPins,
+  },
+  {
+    id: "xhunt", n: 13, title: "Tiny X Hunt", studio: "PixelPeep Games",
+    claim: "Find the tiny x. Ignore the impostors.", icon: "🔎",
+    c1: "#48d7ff", c2: "#7b78ff",
+    hint: "Tap the tiny lowercase x in each round. Beat the 18-second timer for more stars.",
+    scoreLabel: "TIME", lowerBetter: true, mount: mountXhunt,
+  },
+  {
+    id: "iq", n: 14, title: "Totally Legit IQ Test", studio: "BrainBloop Labs",
+    claim: "One trick question can ruin everything", icon: "🧠",
+    c1: "#ffd23f", c2: "#ff65b7",
+    hint: "Read carefully, then tap one answer. Five questions. Zero actual science.",
+    scoreLabel: "CORRECT", mount: mountIq,
+  },
+  {
+    id: "adventure", n: 15, title: "Snack Kingdom Quest", studio: "TinyDragon Interactive",
+    claim: "Your choices decide the snack destiny", icon: "🐉",
+    c1: "#3ee9a5", c2: "#ffb703",
+    hint: "Choose your path through four chapters. Every decision changes your ending.",
+    scoreLabel: "QUEST POINTS", mount: mountAdventure,
   },
 ];
 
@@ -175,6 +223,9 @@ function bestText(level) {
   if (level.id === "rush") return `BEST ${best}/15`;
   if (level.id === "cell") return `BEST ${best} KILLS`;
   if (level.id === "sort") return `BEST ${best} MOVES`;
+  if (level.id === "xhunt") return `BEST ${best}s`;
+  if (level.id === "iq") return `BEST ${best}/5`;
+  if (level.id === "adventure") return `BEST ${best} POINTS`;
   return `BEST ${best}`;
 }
 
@@ -485,6 +536,12 @@ function formatScore(level, score) {
     case "bullet": return `${score} GRAZES`;
     case "snake": return `SIZE ${score}`;
     case "rescue": return `${score} BLOCKED`;
+    case "parking": return `${score} COINS`;
+    case "stack": return `${score} PERFECT DROPS`;
+    case "pins": return `${score} GOLD`;
+    case "xhunt": return `${score}s`;
+    case "iq": return `${score} / 5 CORRECT`;
+    case "adventure": return `${score} QUEST POINTS`;
     default: return String(score);
   }
 }
@@ -501,6 +558,12 @@ function formatBest(level, value) {
     case "bullet": return `BEST ${value} GRAZES`;
     case "snake": return `BEST SIZE ${value}`;
     case "rescue": return `BEST ${value} BLOCKED`;
+    case "parking": return `BEST ${value} COINS`;
+    case "stack": return `BEST ${value} PERFECT DROPS`;
+    case "pins": return `BEST ${value} GOLD`;
+    case "xhunt": return `BEST ${value}s`;
+    case "iq": return `BEST ${value}/5 CORRECT`;
+    case "adventure": return `BEST ${value} QUEST POINTS`;
     default: return `BEST ${value}`;
   }
 }
@@ -589,9 +652,9 @@ function openHelp() {
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="help-title">
       <div class="sheet-grip" aria-hidden="true"></div>
       <h3 id="help-title">How AdPlay works</h3>
-      <p>Nine playable ads, recreated as real mini-games. No install. No purchases. One suspiciously honest skip button.</p>
+      <p>Fifteen playable ads, recreated as real mini-games. No install. No purchases. One suspiciously honest skip button.</p>
       <ul>
-        <li><span class="sheet-num">1</span><span><b>Every level is the ad.</b> Runner hordes, survivor swarms, bullet hell, knife timing, snake growth, potion sorting, one very good dog, one classic Snake Rush and one cell that refuses to stop dividing.</span></li>
+        <li><span class="sheet-num">1</span><span><b>Every level is the ad.</b> Runner hordes, survivor swarms, bullet hell, knife timing, snake growth, potion sorting, dog rescue, Snake Rush, a dividing cell, traffic dodging, block stacking, pin-pulling puzzles, a tiny-X hunt, trick-IQ questions and a snack-sized adventure.</span></li>
         <li><span class="sheet-num">2</span><span><b>Beat the objective</b> to earn up to three stars. Your best scores stay on this device.</span></li>
         <li><span class="sheet-num">3</span><span><b>Skip if you must.</b> The countdown is real. The judgement is also real.</span></li>
         <li><span class="sheet-num">4</span><span><b>All sprites are original recreations</b> of the ad-iverse, drawn for this game. No actual ads were harmed.</span></li>
