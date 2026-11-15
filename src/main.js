@@ -177,6 +177,9 @@ let spritesReady = false;
 let falseAdLayer = null;
 let falseAdInterval = null;
 let falseAdTimeout = null;
+let previewLayer = null;
+let previewInterval = null;
+let previewIndex = 0;
 
 const BANNER_COPY = [
   "INSTALL FREE · NO WIFI NEEDED",
@@ -643,6 +646,112 @@ function showResult({ level, token, win, stars, score, opts = {} }) {
   });
 }
 
+const PREVIEW_COPY = [
+  "Pick a gate. Collect a suspicious number of tiny runners. Become a very loud crowd.",
+  "A peaceful island getaway, if you consider 400 zombies and auto-aim peaceful.",
+  "Dodge the giant eyeball. It has seen your search history. It is not impressed.",
+  "Spin knives, pop apples, and discover that fruit has excellent timing.",
+  "Eat your way up the food chain. Your tiny orb has enormous ambition.",
+  "Sort mystery potions before your brain starts making bubbling noises.",
+  "Save one extremely good dog from bees with a drawing and misplaced confidence.",
+  "A snake, a highway, and 15 apples. The traffic report says: noodle alert.",
+  "Grow a tiny cell into a mighty blob. Please do not ask about the science.",
+  "Find a parking spot while every other driver behaves like a shopping cart.",
+  "Stack blocks to the sky. Wobble is a building code, probably.",
+  "Pull the right pins. Rescue the gold. Avoid an awkward lava situation.",
+  "Spot one tiny x among impostors. Your eyeballs have been warned.",
+  "Five questions, one trickster brain. The IQ score is legally decorative.",
+  "Choose your path, befriend a dragon, and save the snack kingdom. Obviously.",
+];
+
+function closePreviewAd() {
+  if (previewInterval) clearInterval(previewInterval);
+  previewInterval = null;
+  if (previewLayer) {
+    previewLayer.remove();
+    previewLayer = null;
+  }
+}
+
+function renderPreviewSlide() {
+  if (!previewLayer) return;
+  const level = LEVELS[previewIndex];
+  const number = previewLayer.querySelector(".preview-count");
+  const icon = previewLayer.querySelector(".preview-icon");
+  const title = previewLayer.querySelector(".preview-title");
+  const copy = previewLayer.querySelector(".preview-copy");
+  const claim = previewLayer.querySelector(".preview-claim");
+  const progress = previewLayer.querySelector(".preview-progress");
+  const next = previewLayer.querySelector(".preview-next");
+  number.textContent = `${String(previewIndex + 1).padStart(2, "0")} / ${LEVELS.length}`;
+  icon.textContent = level.icon;
+  icon.style.setProperty("--c1", level.c1);
+  icon.style.setProperty("--c2", level.c2);
+  title.textContent = level.title;
+  copy.textContent = PREVIEW_COPY[previewIndex];
+  claim.textContent = `THE AD CLAIMS: “${level.claim}”`;
+  progress.style.width = `${((previewIndex + 1) / LEVELS.length) * 100}%`;
+  next.textContent = previewIndex === LEVELS.length - 1 ? "REPLAY PREVIEW ↻" : "NEXT AD →";
+  const card = previewLayer.querySelector(".preview-card");
+  card.classList.remove("is-changing");
+  requestAnimationFrame(() => card.classList.add("is-changing"));
+}
+
+function openPreviewAd() {
+  closePreviewAd();
+  audio.ensure();
+  previewIndex = 0;
+  const layer = document.createElement("div");
+  layer.className = "preview-ad";
+  layer.setAttribute("role", "dialog");
+  layer.setAttribute("aria-modal", "true");
+  layer.setAttribute("aria-labelledby", "preview-title");
+  layer.innerHTML = `
+    <div class="preview-glow" aria-hidden="true"></div>
+    <div class="preview-topline"><span>ADPLAY STUDIOS PRESENTS</span><button class="preview-close" type="button" aria-label="Close preview">×</button></div>
+    <div class="preview-card">
+      <div class="preview-meta"><span class="preview-badge">100% PLAYABLE · 0% BELIEVABLE</span><span class="preview-count"></span></div>
+      <div class="preview-icon" aria-hidden="true"></div>
+      <p class="preview-kicker">NEXT UP IN THE AD BREAK</p>
+      <h2 class="preview-title" id="preview-title"></h2>
+      <p class="preview-copy" aria-live="polite"></p>
+      <p class="preview-claim"></p>
+      <div class="preview-progress-track" aria-hidden="true"><span class="preview-progress"></span></div>
+      <button class="preview-play" type="button">PLAY THIS AD ▶</button>
+      <button class="preview-next" type="button">NEXT AD →</button>
+    </div>
+    <p class="preview-footnote">NO DOWNLOADS. NO PURCHASES. ONE VERY PERSUASIVE ARROW.</p>
+  `;
+  document.getElementById("app").appendChild(layer);
+  previewLayer = layer;
+  renderPreviewSlide();
+
+  layer.querySelector(".preview-close").addEventListener("click", () => {
+    audio.click();
+    closePreviewAd();
+  });
+  layer.addEventListener("click", (event) => {
+    if (event.target === layer) closePreviewAd();
+  });
+  layer.querySelector(".preview-next").addEventListener("click", () => {
+    audio.tap();
+    previewIndex = (previewIndex + 1) % LEVELS.length;
+    renderPreviewSlide();
+  });
+  layer.querySelector(".preview-play").addEventListener("click", () => {
+    const id = LEVELS[previewIndex].id;
+    audio.click();
+    closePreviewAd();
+    startLevel(id);
+  });
+  previewInterval = setInterval(() => {
+    if (!previewLayer) return;
+    previewIndex = (previewIndex + 1) % LEVELS.length;
+    renderPreviewSlide();
+  }, 2100);
+  layer.querySelector(".preview-close").focus();
+}
+
 function openHelp() {
   const existing = document.querySelector(".sheet-layer");
   if (existing) existing.remove();
@@ -670,6 +779,7 @@ function openHelp() {
 }
 
 function bindChrome() {
+  $("#brand-ad-btn").addEventListener("click", openPreviewAd);
   $("#help-btn").addEventListener("click", openHelp);
   soundBtn.addEventListener("click", () => {
     save.sound = !save.sound;
@@ -719,6 +829,10 @@ async function boot() {
 
   document.addEventListener("pointerdown", () => audio.ensure(), { once: true });
   window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && previewLayer) {
+      closePreviewAd();
+      return;
+    }
     if (e.key === "Escape" && !gameScreen.hidden) {
       goHome({ toast: "Escaped the ad. Respect." });
     }
